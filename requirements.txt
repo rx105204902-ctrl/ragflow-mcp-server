@@ -1,0 +1,9 @@
+fastmcp>=3.0.0,<4.0.0
+mcp>=1.24.0
+click
+httpx
+pydantic
+starlette
+uvicorn
+python-dotenv
+strenum
