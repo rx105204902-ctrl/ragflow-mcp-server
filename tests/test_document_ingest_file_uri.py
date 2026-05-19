@@ -301,6 +301,18 @@ async def test_call_tool_accepts_unprefixed_document_ingest_name(ragflow_server,
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "tool_name",
+    ["ragflow_list_datasets", "ragflow_document_ingest", "ragflow_retrieval"],
+)
+async def test_call_tool_rejects_prefixed_aliases(ragflow_server, tool_name):
+    connector = ragflow_server.RAGFlowConnector("http://ragflow.example")
+
+    with pytest.raises(ValueError, match=f"Tool not found: {tool_name}"):
+        await ragflow_server.call_tool(tool_name, {}, connector=connector, api_key="ragflow-key")
+
+
+@pytest.mark.asyncio
 async def test_upload_binary_documents_posts_multipart_file_bytes_to_ragflow(ragflow_server, monkeypatch):
     connector = ragflow_server.RAGFlowConnector("http://ragflow.example")
     captured = {}

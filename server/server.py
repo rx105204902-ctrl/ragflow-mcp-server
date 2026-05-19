@@ -972,7 +972,7 @@ async def call_tool(
     if not isinstance(arguments, dict):
         connector._mcp_error("arguments must be an object.")
 
-    if name in {"list_datasets", "ragflow_list_datasets"}:
+    if name == "list_datasets":
         try:
             connector._check_allowed_fields(arguments, {"page", "page_size", "id", "name"}, "arguments")
             page = connector._validate_int_argument(arguments.get("page", 1), "page", minimum=1)
@@ -983,7 +983,7 @@ async def call_tool(
             connector._mcp_error(str(exc))
         return await connector.query_datasets(api_key=api_key, page=page, page_size=page_size, id=dataset_id, name=dataset_name)
 
-    if name in {"document_ingest", "ragflow_document_ingest"}:
+    if name == "document_ingest":
         try:
             connector._check_allowed_fields(arguments, {"dataset_id", "files"}, "arguments")
         except ValueError as exc:
@@ -992,7 +992,7 @@ async def call_tool(
         files = arguments.get("files", [])
         return await connector.document_ingest(api_key=api_key, dataset_id=dataset_id, files=files)
 
-    if name in {"retrieval", "ragflow_retrieval"}:
+    if name == "retrieval":
         document_ids = arguments.get("document_ids", [])
         dataset_ids = arguments.get("dataset_ids", [])
         question = arguments.get("question", "")
@@ -1027,7 +1027,7 @@ async def call_tool(
     description="List accessible RAGFlow datasets so users and agents can choose the target dataset_id before uploading documents.",
     annotations={"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True},
 )
-async def ragflow_list_datasets(
+async def list_datasets_tool(
     page: Annotated[int, Field(description="Page number for dataset pagination", ge=1)] = 1,
     page_size: Annotated[int, Field(description="Number of datasets to return per page", ge=1, le=1000)] = 30,
     id: Annotated[str | None, Field(description="Optional dataset ID filter")] = None,
@@ -1052,7 +1052,7 @@ async def ragflow_list_datasets(
     ),
     annotations={"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": True},
 )
-async def ragflow_document_ingest(
+async def document_ingest_tool(
     dataset_id: Annotated[str, Field(description="Target dataset ID")],
     files: Annotated[list[DocumentIngestFile], Field(description="Documents to forward. Each item must include a configured DeerFlow file capability file_uri. filename is optional when the source returns X-DeerFlow-Filename.", min_length=1)],
     ctx: Context = CurrentContext(),
@@ -1075,7 +1075,7 @@ async def ragflow_document_ingest(
     ),
     annotations={"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True},
 )
-async def ragflow_retrieval(
+async def retrieval_tool(
     question: Annotated[str, Field(description="The question or query to search for.")],
     dataset_ids: Annotated[list[str] | None, Field(description="Optional array of dataset IDs to search. If omitted or empty, all accessible datasets will be searched.")] = None,
     document_ids: Annotated[list[str] | None, Field(description="Optional array of document IDs to search within.")] = None,
